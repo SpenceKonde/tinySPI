@@ -1,16 +1,20 @@
-/*----------------------------------------------------------------------*
- * tinySPI.h - Arduino hardware SPI master library for ATtiny44/84,     *
- * and ATtiny45/85.                                                     *
- *                                                                      *
- * Jack Christensen 24Oct2013                                           *
- *                                                                      *
- * CC BY-SA:                                                            *
- * This work is licensed under the Creative Commons Attribution-        *
- * ShareAlike 3.0 Unported License. To view a copy of this license,     *
- * visit http://creativecommons.org/licenses/by-sa/3.0/ or send a       *
- * letter to Creative Commons, 171 Second Street, Suite 300,            *
- * San Francisco, California, 94105, USA.                               *
- *----------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*
+ * tinySPI.h - Arduino hardware SPI master library for ATtiny24/44/84,     *
+ * ATtiny25/45/85, and Attiny2313/4313.                                    *
+ *                                                                         *
+ * Original version of tinyISP by Jack Christensen 24Oct2013               *
+ *                                                                         *
+ * Added support for Attiny24/25, and Attiny2313/4313                      *
+ * by Leonardo Miliani 28Nov2014                                           *                          
+ *                                                                         *
+ * CC BY-SA-NC:                                                            *
+ * This work is licensed under the Creative Commons Attribution-           *
+ * ShareAlike- Not Commercial 4.0 Unported License. To view a copy of this *
+ * license, visit                                                          *
+ * http://creativecommons.org/licenses/by-sa/4.0/ or send a                *
+ * letter to Creative Commons, 171 Second Street, Suite 300,               *
+ * San Francisco, California, 94105, USA.                                  *
+ *-------------------------------------------------------------------------*/
 
 #include "tinySPI.h"
 
