@@ -38,6 +38,7 @@ bit clock period.
 Included with the library are example sketches that demonstrate driving a 74HC595 shift register from an ATtiny84 and from an ATtiny85.
 
 *tinySPI* was developed with [Arduino 1.0.5](http://arduino.cc/en/Main/Software) and the [Arduino-Tiny](http://code.google.com/p/arduino-tiny/) ATtiny core 0100-0017.
+Actually, it compiles well with Arduino 1.0.6 and ATtiny core 0100-0018 and with Arduino 1.5.8 and ATtiny core 0150-0020.
 
 ##Methods
 * begin()
