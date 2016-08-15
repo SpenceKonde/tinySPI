@@ -1,4 +1,4 @@
-#Arduino tinySPI Library
+#UNDER CONSTRUCTION - USE THE OTHER VERSION (see link below) NOT THIS ONE!
 http://github.com/JChristensen/tinySPI  
 ReadMe file  
 Jack Christensen Oct 2013  
@@ -30,7 +30,7 @@ As compared to the [Arduino shiftOut() function](http://arduino.cc/en/Reference/
  
 *tinySPI* will generate an SPI bit clock that is about one-tenth the MCU
 system clock frequency. For example, given a 1MHz system clock, the SPI clock
-will be about 100kHz, and it will take about 80µs to transfer one byte. 
+will be about 100kHz, and it will take about 80Âµs to transfer one byte. 
 
 Interrupts are inhibited during each byte transfer to ensure a consistent
 bit clock period.
