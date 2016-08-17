@@ -19,15 +19,15 @@
 #include "tinySPI.h"
 
   static void begin(); DONE
+  inline static uint8_t transfer(uint8_t data) DONE
+  inline static uint16_t transfer16(uint16_t data) DONE
+  inline static void transfer(void *buf, size_t count) DONE
+  static void end(); DONE
   inline static void beginTransaction(SPISettings settings)
   static void usingInterrupt(uint8_t interruptNumber); 
   static void notUsingInterrupt(uint8_t interruptNumber);
   inline static void beginTransaction(SPISettings settings)
-  inline static uint8_t transfer(uint8_t data) DONE
-  inline static uint16_t transfer16(uint16_t data)
-  inline static void transfer(void *buf, size_t count)
   inline static void endTransaction(void)
-  static void end(); DONE
   //inline static void setBitOrder(uint8_t bitOrder)
   inline static void setDataMode(uint8_t dataMode)
   //inline static void setClockDivider(uint8_t clockDiv)
@@ -82,7 +82,7 @@ uint16_t tinySPI::transfer16(uint16_t data) {
  return out.val;
 }
 
-uint16_t transfer(void *buf, size_t count) {
+uint16_t tinySPI::transfer(void *buf, size_t count) {
  if (count == 0) return;
  uint8_t *p = (uint8_t *)buf;
  USIDR = *p;
@@ -96,13 +96,11 @@ uint16_t transfer(void *buf, size_t count) {
   *p++ = in;
  }
  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { //ensure a consistent clock period
-   while ( !(USISR & _BV(USIOIF)) ) USICR |= _BV(USITC);
-  }
+  while ( !(USISR & _BV(USIOIF)) ) USICR |= _BV(USITC);
+ }
  *p = USIDR;
-  }
+}
 
-
-  inline static void transfer(void *buf, size_t count)
 
 void tinySPI::end(void)
 {
