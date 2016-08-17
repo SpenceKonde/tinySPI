@@ -5,7 +5,11 @@
  * Original version of tinyISP by Jack Christensen 24Oct2013               *
  *                                                                         *
  * Added support for Attiny24/25, and Attiny2313/4313                      *
- * by Leonardo Miliani 28Nov2014                                           *                          
+ * by Leonardo Miliani 28Nov2014                                           *               
+ *                                                                         *
+ * Reworked to add support for 87/167, 261/461/861, and include the normal * 
+ * SPI library on chips that have hardware SPI.                            *
+ * Spence Konde 2016 (in progress)                                         *
  *                                                                         *
  * CC BY-SA-NC:                                                            *
  * This work is licensed under the Creative Commons Attribution-           *
@@ -22,24 +26,6 @@
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/atomic.h>
-
-//USI ports and pins
-#if defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
-#define SPI_DDR_PORT DDRA
-#define USCK_DD_PIN DDA4
-#define DO_DD_PIN DDA5
-#define DI_DD_PIN DDA6
-#elif defined(__AVR_Ttiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-#define SPI_DDR_PORT DDRB
-#define USCK_DD_PIN DDB2
-#define DO_DD_PIN DDB1
-#define DI_DD_PIN DDB0
-#elif defined (__AVR_ATtiny2313__) || defined(__AVR_ATtiny4313__)
-#define SPI_DDR_PORT DDRB
-#define USCK_DD_PIN DDB7
-#define DO_DD_PIN DDB6
-#define DI_DD_PIN DDB5
-#endif
 
 //SPI data modes
 #define SPI_MODE0 0x00
