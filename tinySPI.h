@@ -75,6 +75,23 @@ private:
 
 extern tinySPI SPI;
 
+class SPISettings {
+public:
+  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
+    init_AlwaysInline(clock, bitOrder, dataMode);
+  }
+  SPISettings() {
+    init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0);
+  }
+private:
+  void init_AlwaysInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)
+    __attribute__((__always_inline__)) {
+    usicr=(bitOrder==SPI_MODE1)?0x1E:0x1A)
+  }
+  uint8_t usicr;
+  friend class tinySPI;
+};
+
 #endif
 
 
