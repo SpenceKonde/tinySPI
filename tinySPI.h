@@ -28,6 +28,13 @@
 #include <util/atomic.h>
 #include <Arduino.h>
 
+#ifndef LSBFIRST
+#define LSBFIRST 0
+#endif
+#ifndef MSBFIRST
+#define MSBFIRST 1
+#endif
+
 #ifdef SPDR //Then we have hardware SPI, let's use it:
 
 
@@ -50,13 +57,6 @@
 // each SPI.beginTransaction().  Connect an LED to this pin.  The LED will turn
 // on if any mismatch is ever detected.
 //#define SPI_TRANSACTION_MISMATCH_LED 5
-
-#ifndef LSBFIRST
-#define LSBFIRST 0
-#endif
-#ifndef MSBFIRST
-#define MSBFIRST 1
-#endif
 
 #define SPI_CLOCK_DIV4 0x00
 #define SPI_CLOCK_DIV16 0x01
@@ -337,7 +337,7 @@ private:
 #else 
 #ifdef USICR //if we have a USI instead, use that
 
-
+uint8_t tinySPI::reverse = 0;
 //SPI data modes
 #define SPI_MODE0 0x00
 #define SPI_MODE1 0x04
@@ -353,9 +353,8 @@ class tinySPI
   
   static void begin();
   inline static void beginTransaction(SPISettings settings)
-  static void usingInterrupt(uint8_t interruptNumber); 
-  static void notUsingInterrupt(uint8_t interruptNumber);
-  inline static void beginTransaction(SPISettings settings)
+  //static void usingInterrupt(uint8_t interruptNumber); 
+  //static void notUsingInterrupt(uint8_t interruptNumber);
   inline static uint8_t transfer(uint8_t data) 
   inline static uint16_t transfer16(uint16_t data)
   inline static void transfer(void *buf, size_t count)
@@ -364,7 +363,7 @@ class tinySPI
 
   // This function is deprecated.  New applications should use
   // beginTransaction() to configure SPI settings.
-  inline static void setBitOrder(uint8_t bitOrder)
+  inline static void setBitOrder(uint8_t bitOrder) {reversebit=bitOrder;}
   // This function is deprecated.  New applications should use
   // beginTransaction() to configure SPI settings.
   inline static void setDataMode(uint8_t dataMode)
@@ -374,14 +373,15 @@ class tinySPI
   // These undocumented functions should not be used.  SPI.transfer()
   // polls the hardware flag which is automatically cleared as the
   // AVR responds to SPI's interrupt
-  inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
-  inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
+  //inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
+  //inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
 
 private:
-  static uint8_t initialized;
-  static uint8_t interruptMode; // 0=none, 1=mask, 2=global
-  static uint8_t interruptMask; // which interrupts to mask
-  static uint8_t interruptSave; // temp storage, to restore state
+  static uint8_t initialized=0;
+  static uint8_t reversebit=0;
+  //static uint8_t interruptMode; // 0=none, 1=mask, 2=global
+  //static uint8_t interruptMask; // which interrupts to mask
+  //static uint8_t interruptSave; // temp storage, to restore state
 };
 
 extern tinySPI SPI;
