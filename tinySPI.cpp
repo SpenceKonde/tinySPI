@@ -219,15 +219,15 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber)
   inline static void transfer(void *buf, size_t count) DONE
   static void end(); DONE
   inline static void beginTransaction(SPISettings settings)
-  static void usingInterrupt(uint8_t interruptNumber); 
-  static void notUsingInterrupt(uint8_t interruptNumber);
+  //static void usingInterrupt(uint8_t interruptNumber); 
+  //static void notUsingInterrupt(uint8_t interruptNumber);
   inline static void beginTransaction(SPISettings settings)
   inline static void endTransaction(void)
-  //inline static void setBitOrder(uint8_t bitOrder)
-  inline static void setDataMode(uint8_t dataMode)
+  inline static void setBitOrder(uint8_t bitOrder)
+  inline static void setDataMode(uint8_t dataMode) DONE
   //inline static void setClockDivider(uint8_t clockDiv)
-  inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
-  inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
+  //inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
+  //inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
 tinySPI::tinySPI() 
 {
 }
@@ -239,6 +239,7 @@ void tinySPI::begin(void)
     USI_DDR_PORT |= _BV(USCK_DD_PIN);   //set the USCK pin as output
     USI_DDR_PORT |= _BV(DO_DD_PIN);     //set the DO pin as output
     USI_DDR_PORT &= ~_BV(DI_DD_PIN);    //set the DI pin as input
+    initialized++;
 }
 
 void tinySPI::setDataMode(uint8_t spiDataMode)
@@ -251,12 +252,35 @@ void tinySPI::setDataMode(uint8_t spiDataMode)
 
 uint8_t tinySPI::transfer(uint8_t spiData)
 {
-    USIDR = spiData;
+    USIDR = (reversebit?spiData:reverse(spiData);
     USISR = _BV(USIOIF);                //clear counter and counter overflow interrupt flag
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { //ensure a consistent clock period
         while ( !(USISR & _BV(USIOIF)) ) USICR |= _BV(USITC);
     }
     return USIDR;
+}
+
+byte tinySPI::reverse (byte x){
+ byte result;
+ asm("mov __tmp_reg__, %[in] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* shift out high bit to carry */
+  "ror %[out] \n\t"  /* rotate carry __tmp_reg__to low bit (eventually) */
+  "lsl __tmp_reg__  \n\t"   /* 2 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 3 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 4 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 5 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 6 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 7 */
+  "ror %[out] \n\t"
+  "lsl __tmp_reg__  \n\t"   /* 8 */
+  "ror %[out] \n\t"
+  : [out] "=r" (result) : [in] "r" (x));
+  return(result);
 }
 
 uint16_t tinySPI::transfer16(uint16_t data) {
