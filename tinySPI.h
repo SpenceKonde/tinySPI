@@ -20,84 +20,69 @@
  * San Francisco, California, 94105, USA.                                  *
  *-------------------------------------------------------------------------*/
  
-#ifndef tinySPI_h
-#define tinySPI_h
+#ifndef tinycoreSPI_h
+#define tinycoreSPI_h
 
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/atomic.h>
+#include <Arduino.h>
 
-//SPI data modes
-#define SPI_MODE0 0x00
-#define SPI_MODE1 0x04
+#ifdef SPDR //Then we have hardware SPI, let's use it:
 
-class tinySPI
-{
- public:
-  tinySPI();
-  void begin(void);
-  void setDataMode(uint8_t spiDataMode);
-  uint8_t transfer(uint8_t spiData);
-  void end(void);
-  
-  static void begin();
-  inline static void beginTransaction(SPISettings settings)
-  static void usingInterrupt(uint8_t interruptNumber); 
-  static void notUsingInterrupt(uint8_t interruptNumber);
-  inline static void beginTransaction(SPISettings settings)
-  inline static uint8_t transfer(uint8_t data) 
-  inline static uint16_t transfer16(uint16_t data)
-  inline static void transfer(void *buf, size_t count)
-  inline static void endTransaction(void)
-  static void end();
 
-  // This function is deprecated.  New applications should use
-  // beginTransaction() to configure SPI settings.
-  inline static void setBitOrder(uint8_t bitOrder)
-  // This function is deprecated.  New applications should use
-  // beginTransaction() to configure SPI settings.
-  inline static void setDataMode(uint8_t dataMode)
-  // This function is deprecated.  New applications should use
-  // beginTransaction() to configure SPI settings.
-  inline static void setClockDivider(uint8_t clockDiv)
-  // These undocumented functions should not be used.  SPI.transfer()
-  // polls the hardware flag which is automatically cleared as the
-  // AVR responds to SPI's interrupt
-  inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
-  inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
+// SPI_HAS_TRANSACTION means SPI has beginTransaction(), endTransaction(),
+// usingInterrupt(), and SPISetting(clock, bitOrder, dataMode)
+#define SPI_HAS_TRANSACTION 1
 
-private:
-  static uint8_t initialized;
-  static uint8_t interruptMode; // 0=none, 1=mask, 2=global
-  static uint8_t interruptMask; // which interrupts to mask
-  static uint8_t interruptSave; // temp storage, to restore state
-};
+// SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
+#define SPI_HAS_NOTUSINGINTERRUPT 1
 
-extern tinySPI SPI;
+// SPI_ATOMIC_VERSION means that SPI has atomicity fixes and what version.
+// This way when there is a bug fix you can check this define to alert users
+// of your code if it uses better version of this library.
+// This also implies everything that SPI_HAS_TRANSACTION as documented above is
+// available too.
+#define SPI_ATOMIC_VERSION 1
 
-class SPISettings {
-public:
-  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
-    init_AlwaysInline(clock, bitOrder, dataMode);
-  }
-  SPISettings() {
-    init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0);
-  }
-private:
-  void init_AlwaysInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)
-    __attribute__((__always_inline__)) {
-    usicr=(bitOrder==SPI_MODE1)?0x1E:0x1A)
-  }
-  uint8_t usicr;
-  friend class tinySPI;
-};
+// Uncomment this line to add detection of mismatched begin/end transactions.
+// A mismatch occurs if other libraries fail to use SPI.endTransaction() for
+// each SPI.beginTransaction().  Connect an LED to this pin.  The LED will turn
+// on if any mismatch is ever detected.
+//#define SPI_TRANSACTION_MISMATCH_LED 5
 
+#ifndef LSBFIRST
+#define LSBFIRST 0
+#endif
+#ifndef MSBFIRST
+#define MSBFIRST 1
 #endif
 
+#define SPI_CLOCK_DIV4 0x00
+#define SPI_CLOCK_DIV16 0x01
+#define SPI_CLOCK_DIV64 0x02
+#define SPI_CLOCK_DIV128 0x03
+#define SPI_CLOCK_DIV2 0x04
+#define SPI_CLOCK_DIV8 0x05
+#define SPI_CLOCK_DIV32 0x06
 
-/*
+#define SPI_MODE0 0x00
+#define SPI_MODE1 0x04
+#define SPI_MODE2 0x08
+#define SPI_MODE3 0x0C
 
+#define SPI_MODE_MASK 0x0C  // CPOL = bit 3, CPHA = bit 2 on SPCR
+#define SPI_CLOCK_MASK 0x03  // SPR1 = bit 1, SPR0 = bit 0 on SPCR
+#define SPI_2XCLOCK_MASK 0x01  // SPI2X = bit 0 on SPSR
 
+// define SPI_AVR_EIMSK for AVR boards with external interrupt pins
+#if defined(EIMSK)
+  #define SPI_AVR_EIMSK  EIMSK
+#elif defined(GICR)
+  #define SPI_AVR_EIMSK  GICR
+#elif defined(GIMSK)
+  #define SPI_AVR_EIMSK  GIMSK
+#endif
 
 
 class SPIClass {
@@ -349,6 +334,83 @@ private:
   friend class SPIClass;
 };
 
-*/
+#else 
+#ifdef USICR //if we have a USI instead, use that
+
+
+//SPI data modes
+#define SPI_MODE0 0x00
+#define SPI_MODE1 0x04
+
+class tinySPI
+{
+ public:
+  tinySPI();
+  void begin(void);
+  void setDataMode(uint8_t spiDataMode);
+  uint8_t transfer(uint8_t spiData);
+  void end(void);
+  
+  static void begin();
+  inline static void beginTransaction(SPISettings settings)
+  static void usingInterrupt(uint8_t interruptNumber); 
+  static void notUsingInterrupt(uint8_t interruptNumber);
+  inline static void beginTransaction(SPISettings settings)
+  inline static uint8_t transfer(uint8_t data) 
+  inline static uint16_t transfer16(uint16_t data)
+  inline static void transfer(void *buf, size_t count)
+  inline static void endTransaction(void)
+  static void end();
+
+  // This function is deprecated.  New applications should use
+  // beginTransaction() to configure SPI settings.
+  inline static void setBitOrder(uint8_t bitOrder)
+  // This function is deprecated.  New applications should use
+  // beginTransaction() to configure SPI settings.
+  inline static void setDataMode(uint8_t dataMode)
+  // This function is deprecated.  New applications should use
+  // beginTransaction() to configure SPI settings.
+  inline static void setClockDivider(uint8_t clockDiv)
+  // These undocumented functions should not be used.  SPI.transfer()
+  // polls the hardware flag which is automatically cleared as the
+  // AVR responds to SPI's interrupt
+  inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
+  inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
+
+private:
+  static uint8_t initialized;
+  static uint8_t interruptMode; // 0=none, 1=mask, 2=global
+  static uint8_t interruptMask; // which interrupts to mask
+  static uint8_t interruptSave; // temp storage, to restore state
+};
+
+extern tinySPI SPI;
+
+class SPISettings {
+public:
+  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
+    init_AlwaysInline(clock, bitOrder, dataMode);
+  }
+  SPISettings() {
+    init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0);
+  }
+private:
+  void init_AlwaysInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)
+    __attribute__((__always_inline__)) {
+    usicr=(bitOrder==SPI_MODE1)?0x1E:0x1A)
+  }
+  uint8_t usicr;
+  friend class tinySPI;
+};
+
+#else 
+//if no USICR and no TWBR
+
+#error No supported hardware
+
+#endif //end if USICR
+#endif //end if TWBR
+#endif //end of module include guard
+
 
 
