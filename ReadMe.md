@@ -1,4 +1,5 @@
-#UNDER CONSTRUCTION - USE THE OTHER VERSION (see link below) NOT THIS ONE!
+# STOP - IF USING MY CORE, DO NOT USE THIS LIBRARY #
+## MY CORE NOW HAS UNIVERSAL SPI.h LIBRARY. Just use SPI.h and unmodified SPI device libraries. ##
 http://github.com/JChristensen/tinySPI  
 ReadMe file  
 Jack Christensen Oct 2013  
